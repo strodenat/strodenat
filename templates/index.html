@@ -3,30 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Nat Strode's Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
-    <script>
-        async function sendGameInput() {
-            const input = document.getElementById("gameInput").value;
-            const response = await fetch('http://localhost:4567/game', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `input=${encodeURIComponent(input)}`
-            });
-            const output = await response.json();
-            document.getElementById("gameOutput").innerText = output.output;
-            document.getElementById("gameInput").value = ''; // Clear the input box after submitting
-        }
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.getElementById('gameInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendGameInput();
-                }
-            });
-        });
-    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 </head>
 <body>
     <header>
@@ -38,12 +15,6 @@
                 <li><a href="mailto:strodenat@gmail.com">Contact</a></li>
             </ul>
         </nav>
-        <div id="social-media">
-            <ul>
-                <li><a href="https://github.com/your-github-profile">GitHub</a></li>
-                <li><a href="https://www.linkedin.com/in/your-linkedin-profile">LinkedIn</a></li>
-            </ul>
-        </div>
     </header>
     <main>
         <section id="about">
@@ -64,5 +35,28 @@
     <footer>
         &copy; 2024 Nat Strode. All rights reserved.
     </footer>
+    <script>
+        async function sendGameInput() {
+            const input = document.getElementById("gameInput").value;
+            const response = await fetch('/game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `input=${encodeURIComponent(input)}`
+            });
+            const output = await response.json();
+            document.getElementById("gameOutput").innerText = output.output;
+            document.getElementById("gameInput").value = ''; // Clear the input box after submitting
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('gameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendGameInput();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
