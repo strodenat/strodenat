@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nat Strode's Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        async function sendGameInput() {
+            const input = document.getElementById("gameInput").value;
+            const response = await fetch('http://localhost:4567/game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `input=${encodeURIComponent(input)}`
+            });
+            const output = await response.json();
+            document.getElementById("gameOutput").innerText = output.output;
+            document.getElementById("gameInput").value = ''; // Clear the input box after submitting
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('gameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendGameInput();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Nat Strode</h1>
+        <nav>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="mailto:strodenat@gmail.com">Contact</a></li>
+            </ul>
+        </nav>
+        <div id="social-media">
+            <ul>
+                <li><a href="https://github.com/your-github-profile">GitHub</a></li>
+                <li><a href="https://www.linkedin.com/in/your-linkedin-profile">LinkedIn</a></li>
+            </ul>
+        </div>
+    </header>
+    <main>
+        <section id="about">
+            <h2>About Me</h2>
+            <p>Hi, I'm Nat Strode, a dedicated Computer Science student with a passion for technology and innovation.</p>
+        </section>
+        <section id="projects">
+            <h2>Projects</h2>
+            <!-- List of projects goes here -->
+        </section>
+        <section id="game">
+            <h2>Play My Python Game</h2>
+            <input type="text" id="gameInput" placeholder="Enter your command">
+            <button type="button" onclick="sendGameInput()">Submit</button>
+            <div id="gameOutput"></div>
+        </section>
+    </main>
+    <footer>
+        &copy; 2024 Nat Strode. All rights reserved.
+    </footer>
+</body>
+</html>
