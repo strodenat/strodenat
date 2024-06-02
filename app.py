@@ -1,3 +1,5 @@
+# app.py
+
 from flask import Flask, render_template, request, jsonify
 from textbasedgame import process_input, game_intro
 
