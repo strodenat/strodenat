@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from TextBasedGame import process_input, initialize_game
+from TextBasedGame import process_input, initialize_game, game_intro
 
 app = Flask(__name__)
 
@@ -8,7 +8,8 @@ player, rooms = initialize_game()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    intro = game_intro()
+    return render_template('index.html', intro=intro)
 
 @app.route('/game', methods=['POST'])
 def game():
