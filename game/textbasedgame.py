@@ -55,7 +55,7 @@ def process_input(input_data):
         direction = input_data.split(" ")[1]  # Assumes the direction is the second word in the input
         return player_move(direction, player, rooms)
     elif "get" in input_data:
-        item = input_data.split(" ")[1]  # Assumes the item is the second word in the input
+        item = input_data.split(" ", 1)[1]  # Assumes the item is the rest of the input after "get"
         print(f"Getting item: {item}")
         return get_item(item, player, rooms)
     elif "check inventory" in input_data:
@@ -91,15 +91,17 @@ def player_move(direction, player, rooms):
 def get_item(item, player, rooms):
     current_room = rooms[player["location"]]
     print(f"Current room: {current_room}")
-    if "item" in current_room and item.lower() == current_room["item"][0].lower():
-        player["inventory"].append(item)
-        player["inventory"][0] += 1
-        del current_room["item"]
-        print(f"Added {item} to inventory.")
-        return "You have added a " + item.capitalize() + " to your inventory."
-    else:
-        print(f"Item {item} not found in room.")
-        return "That item is not in this room."
+    item_lower = item.lower()
+    if "item" in current_room:
+        room_item_lower = current_room["item"][0].lower()
+        if item_lower == room_item_lower:
+            player["inventory"].append(current_room["item"][0])
+            player["inventory"][0] += 1
+            del current_room["item"]
+            print(f"Added {item} to inventory.")
+            return f"You have added a {item} to your inventory."
+    print(f"Item {item} not found in room.")
+    return "That item is not in this room."
 
 def encounter_divisio(player):
     global is_alive
