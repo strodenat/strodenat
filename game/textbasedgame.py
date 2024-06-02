@@ -93,13 +93,14 @@ def get_item(item, player, rooms):
     print(f"Current room: {current_room}")
     item_lower = item.lower()
     if "item" in current_room:
-        room_item_lower = current_room["item"][0].lower()
-        if item_lower == room_item_lower:
-            player["inventory"].append(current_room["item"][0])
+        room_item = current_room["item"][0]
+        room_item_first_word = room_item.split(" ")[0].lower()
+        if item_lower == room_item_first_word:
+            player["inventory"].append(room_item)
             player["inventory"][0] += 1
             del current_room["item"]
-            print(f"Added {item} to inventory.")
-            return f"You have added a {item} to your inventory."
+            print(f"Added {room_item} to inventory.")
+            return f"You have added a {room_item} to your inventory."
     print(f"Item {item} not found in room.")
     return "That item is not in this room."
 
