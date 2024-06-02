@@ -16,30 +16,30 @@ rooms = {
     },
     "Diplomatic Den": {
         "east": 'Hall of Acceptance',
-        "item": ["Necklace"]
+        "item": ["Necklace of Tenacity"]
     },
     "Garden of Whispers": {
         "south": 'Hall of Acceptance',
         "east": 'Beacon Tower',
-        "item": ["Potion"]
+        "item": ["Potion of Energy"]
     },
     "Beacon Tower": {
         "west": 'Garden of Whispers',
-        "item": ["Key"]
+        "item": ["Archives of Unity Key"]
     },
     "Gallery of Shadows": {
         "north": 'Archives of Unity',
         "west": 'Hall of Acceptance',
-        "item": ["Ring"]
+        "item": ["Ring of Temporal Folding"]
     },
     "Archives of Unity": {
         "south": 'Gallery of Shadows',
-        "item": ["Orb"]
+        "item": ["Orb of Sudden Expansion"]
     },
     "Vault of Visions": {
         "north": 'Hall of Acceptance',
         "east": 'Hall of Illusions',
-        "item": ["Sword"]
+        "item": ["Sword of Liberation"]
     },
     "Hall of Illusions": {
         "west": 'Vault of Visions',
