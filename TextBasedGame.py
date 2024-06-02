@@ -52,11 +52,6 @@ def game_intro():
         "You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio.\n"
         "You must navigate through the palace, find all 6 items, and defeat Divisio to save the kingdom.\n"
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-        "Move commands: go North, go South, go East, go West\n"
-        "Add to inventory: get 'item name'\n"
-        "Check inventory: check inventory\n"
-        "Check location: check map\n"
-        "Quit: quit"
     )
     return intro_text
 
