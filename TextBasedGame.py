@@ -55,18 +55,24 @@ def game_intro():
     )
     return intro_text
 
-def process_input(input_data, player, rooms):
+def process_input(input_data):
+    global player, rooms, is_alive
+    print(f"Processing input: {input_data}")
     if "go" in input_data:
         direction = input_data.split(" ")[1]  # Assumes the direction is the second word in the input
         return player_move(direction, player, rooms)
     elif "get" in input_data:
         item = input_data.split(" ")[1]  # Assumes the item is the second word in the input
+        print(f"Getting item: {item}")
         return get_item(item, player, rooms)
     elif "check inventory" in input_data:
+        # Check if the player has any items in their inventory
         if player["inventory"][0] == 0:
             return "You have no items in your inventory."
+        # If the player has 1 item in their inventory, tell them what it is in singular form
         elif player["inventory"][0] == 1:
             return "You have a " + player["inventory"][1] + " in your inventory."
+        # If the player has more than 1 item in their inventory, tell them what they are in plural form and their inventory count
         else:
             inventory_list = "You have " + str(player["inventory"][0]) + " items in your inventory.\n"
             for i in range(1, len(player["inventory"])):
@@ -75,6 +81,7 @@ def process_input(input_data, player, rooms):
     elif "check map" in input_data:
         return "You are in the " + player["location"]
     elif "quit" in input_data:
+        is_alive = False
         return "Game over."
     else:
         return "Unknown command: " + input_data
@@ -92,12 +99,16 @@ def player_move(direction, player, rooms):
         return "You cannot go that way."
 
 def get_item(item, player, rooms):
-    if item.lower() in rooms[player["location"]]["item"][0].lower():
+    current_room = rooms[player["location"]]
+    print(f"Current room: {current_room}")
+    if "item" in current_room and item.lower() == current_room["item"][0].lower():
         player["inventory"].append(item)
         player["inventory"][0] += 1
-        del rooms[player["location"]]["item"]
+        del current_room["item"]
+        print(f"Added {item} to inventory.")
         return "You have added a " + item.capitalize() + " to your inventory."
     else:
+        print(f"Item {item} not found in room.")
         return "That item is not in this room."
 
 def encounter_divisio(player):
