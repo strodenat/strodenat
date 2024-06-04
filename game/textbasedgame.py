@@ -62,6 +62,7 @@ def main():
         # Call the get_new_state function to get the new state of the player
         player = get_new_state(action.split(), player["location"], rooms, player)
 
+
 # Function definitions
 
 # Define a function for getting the new state of the player
@@ -210,3 +211,35 @@ def game_intro():
         "Exit game: 'quit'<br>"
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     )
+
+def process_input(input_data):
+    initialize_game()
+    player = session["player"]
+    rooms = session["rooms"]
+
+    action = input_data.lower().split()
+    response = []
+
+    if action:
+        if action[0] == "go":
+            response.append(player["location"])
+            player["location"] = move(action[1], player["location"], rooms, player)
+            response.append(player["location"])
+        elif action[0] == "get":
+            if len(action) > 1:
+                get_item(action[1], player, rooms)
+            else:
+                response.append("Please specify an item to get.")
+        elif action[0] == "check" and action[1] == "stats":
+            response.append(show_status(player, rooms))
+        elif action[0] == "quit":
+            player["location"] = "exit"
+        elif action[0] == "":
+            response.append("Please enter a valid action.")
+        else:
+            response.append("Invalid action.")
+    else:
+        response.append("Please enter a valid action.")
+    
+    session["player"] = player
+    return "<br>".join(response)
