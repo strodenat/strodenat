@@ -62,7 +62,6 @@ def main():
         # Call the get_new_state function to get the new state of the player
         player = get_new_state(action.split(), player["location"], rooms, player)
 
-
 # Function definitions
 
 # Define a function for getting the new state of the player
