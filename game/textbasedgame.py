@@ -39,6 +39,8 @@ def initialize_game():
 def get_new_state(action, pllocation, rooms, player):
     # Convert the player's action to lowercase
     action = [word.lower() for word in action]
+    
+    print(f"Action received: {action}")
 
     # Check if the action list is empty
     if action:
@@ -74,6 +76,7 @@ def get_new_state(action, pllocation, rooms, player):
 
 # Define a function for moving the player
 def move(direction, pllocation, rooms, player):
+    print(f"Attempting to move {direction} from {pllocation}")
     # Check if the direction is valid
     if direction in rooms[pllocation]:
         # Get the new location of the player
@@ -124,6 +127,7 @@ def show_status(player, rooms):
     
 # Define a function for getting an item
 def get_item(item, player, rooms):
+    print(f"Attempting to get item: {item}")
     current_room_items = rooms[player["location"]].get("item", [])
     # Check if the item is in the room ignoring case
     if item.capitalize() in current_room_items:
@@ -156,6 +160,7 @@ def process_input(input_data):
     player = session["player"]
     rooms = session["rooms"]
 
-    response = get_new_state(input_data, player["location"], rooms, player)
+    action = input_data.split()
+    response = get_new_state(action, player["location"], rooms, player)
     session["player"] = player
     return response
