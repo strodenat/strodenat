@@ -78,6 +78,7 @@ def process_input(input_data):
 
 def player_move(direction, player, rooms):
     current_location = player["location"]
+    direction = direction.lower()
     print(f"Current location: {current_location}, direction: {direction}")
     
     if direction in rooms[current_location]:
