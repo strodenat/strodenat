@@ -77,15 +77,22 @@ def process_input(input_data):
         return "Unknown command: " + input_data
 
 def player_move(direction, player, rooms):
-    if direction in rooms[player["location"]]:
-        player["location"] = rooms[player["location"]][direction]
-        response = "You have moved to the " + player["location"]
-        if "item" in rooms[player["location"]]:
-            response += "\nYou see a " + rooms[player["location"]]["item"][0] + " in this room."
-        if player["location"] == "Hall of Illusions":
+    current_location = player["location"]
+    print(f"Current location: {current_location}, direction: {direction}")
+    
+    if direction in rooms[current_location]:
+        new_location = rooms[current_location][direction]
+        player["location"] = new_location
+        response = "You have moved to the " + new_location
+        print(f"Moved to new location: {new_location}")
+        
+        if "item" in rooms[new_location]:
+            response += "\nYou see a " + rooms[new_location]["item"][0] + " in this room."
+        if new_location == "Hall of Illusions":
             response += "\n" + encounter_divisio(player)
         return response
     else:
+        print(f"Invalid direction: {direction}")
         return "You cannot go that way."
 
 def get_item(item, player, rooms):
