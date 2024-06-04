@@ -7,29 +7,38 @@
 # The player can add items to their inventory by getting the item in the room.
 # The player can check their status
 # The player can quit the game at any time. 
-# The game ends when the player's locaton is set to the room 'exit'.
+# The game ends when the player's location is set to the room 'exit'.
+
+# Import flask
+from flask import session
+
+def initialize_game():
+    if "player" not in session:
+        session["player"] = {
+            "name": '',
+            "inventory": [],
+            "location": 'Hall of Acceptance',
+        }
+
+    if "rooms" not in session:
+        session["rooms"] = {
+            "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions',
+                                   "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
+            "Diplomatic Den": {"east": 'Hall of Acceptance', "item": ["Necklace"]},
+            "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
+            "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
+            "Gallery of Shadows": {"north": 'Archives of Unity', "west": 'Hall of Acceptance', "item": ["Ring"]},
+            "Archives of Unity": {"south": 'Gallery of Shadows', "item": ["Orb"]},
+            "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
+            "Hall of Illusions": {"west": 'Vault of Visions'}
+        }
 
 # Define the main function
 def main():
-
-    # Define a dictonary for the player's stats and inventory
-    player = {
-        "name":'',
-        "inventory": [],
-        "location": 'Hall of Acceptance', 
-    }
-
-    # Define a dictionary for the rooms in the palace conataining the valid directions and items
-    rooms = {   "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions',
-                                       "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
-                "Diplomatic Den": {"east": 'Hall of Acceptance',"item": ["Necklace"]},
-                "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
-                "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
-                "Gallery of Shadows": {"north": 'Archives of Unity', "west": 'Hall of Acceptance', "item": ["Ring"]},
-                "Archives of Unity": {"south": 'Gallery of Shadows', "item": ["Orb"]},
-                "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
-                "Hall of Illusions": {"west": 'Vault of Visions',}
-    }
+    initialize_game()
+    player = session["player"]
+    rooms = session["rooms"]
+    
     # Welcome the player to the game
     print("Welcome to The Pale Palace.")
     print("You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio")
@@ -69,7 +78,7 @@ def get_new_state(action, pllocation, rooms, player):
             # Call the move function to move the player
             player["location"] = move(action[1], pllocation, rooms, player)
 
-            # Check if the player wants to get an item
+        # Check if the player wants to get an item
         elif action[0] == "get":
             # Check if the player is trying to get an item
             if len(action) > 1:
@@ -104,10 +113,11 @@ def get_new_state(action, pllocation, rooms, player):
         print("----------------------")
 
     # Return the new state of the player only if the player's location is not exit
+    session["player"] = player
     return player
 
 # Define a function for moving the player
-def move(direction, pllocation, rooms,player):
+def move(direction, pllocation, rooms, player):
     # Check if the direction is valid
     if direction in rooms[pllocation]:
         # Get the new location of the player
@@ -122,11 +132,13 @@ def move(direction, pllocation, rooms,player):
             if len(player["inventory"]) == 6:
                 print("You have found and defeated Divisio. You have saved the kingdom of Kalambia.")
                 player["location"] = "exit"
+                session["player"] = player
                 return 'exit'
             # If the player does not have all the items, tell the player they need to find all the items
             else:
                 print("You have been defeated by Divisio. You must find all the items to defeat him.")
                 player["location"] = "exit"
+                session["player"] = player
                 return 'exit'
         
         # Update the player's location and show the player's status
@@ -137,6 +149,7 @@ def move(direction, pllocation, rooms,player):
         print("You can't go that way.")
     
     # Return the new location of the player
+    session["player"] = player
     return player["location"]
 
 # Define a function for checking the player's stats
@@ -168,16 +181,17 @@ def show_status(player, rooms):
     
 # Define a function for getting an item
 def get_item(item, player, rooms):
-
+    current_room_items = rooms[player["location"]].get("item", [])
     # Check if the item is in the room ignoring case
-    if item.capitalize() in rooms[player["location"]]["item"]:
+    if item.capitalize() in current_room_items:
         # Add the item to the player's inventory
         player["inventory"].append(item)
 
         # Remove the item from the rooms dictionary and tell the player they have added the item to their inventory, 
         # capitalizing the first letter of the item
         print("You have added a " + item.capitalize() + " to your inventory.")
-        del rooms[player["location"]]["item"]
+        current_room_items.remove(item.capitalize())
+        session["player"] = player
 
     # If the item is not in the room, tell the player the item is not there
     else:
@@ -185,5 +199,15 @@ def get_item(item, player, rooms):
     
     print("----------------------")
 
-# Call the main function
-main()
+def game_intro():
+    return (
+        "Welcome to The Pale Palace.<br>"
+        "You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio.<br>"
+        "You must navigate through the palace, find all 6 items, and defeat Divisio to save the kingdom.<br>"
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>"
+        "Move commands: 'go North', 'go South', 'go East', 'go West'<br>"
+        "Add an item to inventory: get 'item name'<br>"
+        "Check stats: 'check stats'<br>"
+        "Exit game: 'quit'<br>"
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )

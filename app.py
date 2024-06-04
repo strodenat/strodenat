@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, jsonify
-from game.textbasedgame import process_input, game_intro
+from flask import Flask, render_template, request, jsonify, session
+from game.textbasedgame import initialize_game, process_input, game_intro
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 @app.route('/')
 def index():
+    initialize_game()
     return render_template('index.html', intro=game_intro())
 
 @app.route('/game', methods=['POST'])
