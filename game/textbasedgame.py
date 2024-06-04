@@ -13,11 +13,7 @@ from flask import session
 
 def initialize_game():
     if "player" not in session:
-        session["player"] = {
-            "name": '',
-            "inventory": [],
-            "location": 'Hall of Acceptance',
-        }
+        reset_game()
 
     if "rooms" not in session:
         session["rooms"] = {
@@ -32,10 +28,18 @@ def initialize_game():
             "Hall of Illusions": {"west": 'Vault of Visions'}
         }
 
+def reset_game():
+    session["player"] = {
+        "name": '',
+        "inventory": [],
+        "location": 'Hall of Acceptance',
+    }
+
 def get_new_state(action, pllocation, rooms, player):
     action = [word.lower() for word in action]
-    
-    print(f"Action received: {action}")
+
+    if player["location"] == "exit":
+        return "Game has already ended. Please start a new game."
 
     if action:
         if action[0] == "go":
@@ -50,15 +54,16 @@ def get_new_state(action, pllocation, rooms, player):
         elif action[0] == "quit":
             player["location"] = "exit"
             return "You have quit the game."
+        elif action[0] == "restart":
+            reset_game()
+            initialize_game()
+            return "Game has been restarted."
         else:
             return "Invalid action."
     else:
         return "Please enter a valid action."
 
 def move(direction, pllocation, rooms, player):
-    if player["location"] == "exit":
-        return "Game has already ended."
-
     print(f"Attempting to move {direction} from {pllocation}")
     if direction in rooms[pllocation]:
         new_location = rooms[pllocation][direction]
@@ -75,9 +80,6 @@ def move(direction, pllocation, rooms, player):
         return "You can't go that way."
 
 def show_status(player, rooms):
-    if player["location"] == "exit":
-        return "Game has already ended."
-
     status = f"You are in the {player['location']}<br>"
 
     if len(player["inventory"]) == 0:
@@ -99,9 +101,6 @@ def show_status(player, rooms):
     return status
 
 def get_item(item, player, rooms):
-    if player["location"] == "exit":
-        return "Game has already ended."
-
     print(f"Attempting to get item: {item}")
     current_room_items = rooms[player["location"]].get("item", [])
     if item.capitalize() in current_room_items:
@@ -121,6 +120,7 @@ def game_intro():
         "Add an item to inventory: get 'item name'<br>"
         "Check stats: 'check stats'<br>"
         "Exit game: 'quit'<br>"
+        "Restart game: 'restart'<br>"
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     )
 
