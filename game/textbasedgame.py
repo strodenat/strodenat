@@ -47,8 +47,7 @@ def get_new_state(action, pllocation, rooms, player):
         # Check if the player wants to move
         if action[0] == "go":
             # Call the move function to move the player
-            player["location"] = move(action[1], pllocation, rooms, player)
-            return f"Moved to {player['location']}"
+            return move(action[1], pllocation, rooms, player)
         # Check if the player wants to get an item
         elif action[0] == "get":
             # Check if the player is trying to get an item
@@ -57,7 +56,7 @@ def get_new_state(action, pllocation, rooms, player):
             else:
                 return "Please specify an item to get."
         # Check if the player wants to check their stats
-        elif action[0] == "check" and action[1] == "stats":
+        elif action[0] == "check" and len(action) > 1 and action[1] == "stats":
             return show_status(player, rooms)
         # Check if the player wants to exit the game
         elif action[0] == "quit":
@@ -161,6 +160,8 @@ def process_input(input_data):
     rooms = session["rooms"]
 
     action = input_data.split()
+    print(f"Processing input: {action}")
     response = get_new_state(action, player["location"], rooms, player)
     session["player"] = player
+    print(f"Response: {response}")
     return response

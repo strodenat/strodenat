@@ -12,6 +12,7 @@ def index():
 @app.route('/game', methods=['POST'])
 def game():
     user_input = request.form.get('input')
+    print(f"User input: {user_input}")
     response = process_input(user_input)
     return jsonify({'output': response})
 
