@@ -68,6 +68,3 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 
 Contact
 You can contact me at strodenat@gmail.com or through LinkedIn.
-
-Acknowledgments
-Thanks to the Flask community for their excellent documentation and support.
