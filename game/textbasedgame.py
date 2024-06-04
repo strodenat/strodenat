@@ -83,6 +83,9 @@ def move(direction, pllocation, rooms, player):
         return "You can't go that way."
 
 def show_status(player, rooms):
+    if player["location"] == "exit":
+        return "Game has already ended. Please start a new game."
+
     status = f"You are in the {player['location']}<br>"
 
     if len(player["inventory"]) == 0:
