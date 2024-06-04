@@ -34,16 +34,6 @@
         <section id="game">
             <h2>Play My Python Game</h2>
             <div id="intro">{{ intro | safe }}</div>
-            <div id="game-commands">
-                <h3>Game Commands:</h3>
-                <ul>
-                    <li><strong>Move commands:</strong> go North, go South, go East, go West</li>
-                    <li><strong>Add to inventory:</strong> get 'item name'</li>
-                    <li><strong>Check inventory:</strong> check inventory</li>
-                    <li><strong>Check location:</strong> check map</li>
-                    <li><strong>Quit:</strong> quit</li>
-                </ul>
-            </div>
             <input type="text" id="gameInput" placeholder="Enter your command">
             <button type="button" onclick="sendGameInput()">Submit</button>
             <div id="gameOutput"></div>

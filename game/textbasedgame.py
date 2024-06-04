@@ -33,36 +33,6 @@ def initialize_game():
             "Hall of Illusions": {"west": 'Vault of Visions'}
         }
 
-# Define the main function
-def main():
-    initialize_game()
-    player = session["player"]
-    rooms = session["rooms"]
-    
-    # Welcome the player to the game
-    print("Welcome to The Pale Palace.")
-    print("You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio")
-    print("You must navigate through the palace, find all 6 items, and defeat Divisio to save the kingdom.")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Move commands: 'go North', 'go South', 'go East', 'go West'")
-    print("Add an item to inventory: get 'item name'")
-    print("Check stats: 'check stats'")
-    print("Exit game: 'quit'")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-    # Start the game loop
-    while player["location"] != "exit":
-        # Show the player's status
-        show_status(player, rooms)
-
-        # Ask the player what they would like to do
-        action = input("What would you like to do? ")
-        print("----------------------")
-
-        # Call the get_new_state function to get the new state of the player
-        player = get_new_state(action.split(), player["location"], rooms, player)
-
-
 # Function definitions
 
 # Define a function for getting the new state of the player
@@ -72,49 +42,35 @@ def get_new_state(action, pllocation, rooms, player):
 
     # Check if the action list is empty
     if action:
-    
         # Check if the player wants to move
         if action[0] == "go":
             # Call the move function to move the player
             player["location"] = move(action[1], pllocation, rooms, player)
-
+            return f"Moved to {player['location']}"
         # Check if the player wants to get an item
         elif action[0] == "get":
             # Check if the player is trying to get an item
             if len(action) > 1:
-                # Call the get_item function to get the item
-                get_item(action[1], player, rooms)
-
-            # If the player is not trying to get an item, tell the player
+                return get_item(action[1], player, rooms)
             else:
-                print("Please specify an item to get.")
-    
+                return "Please specify an item to get."
         # Check if the player wants to check their stats
         elif action[0] == "check" and action[1] == "stats":
-            # Call the show_status function to show the player's stats
-            show_status(player, rooms)
-    
+            return show_status(player, rooms)
         # Check if the player wants to exit the game
         elif action[0] == "quit":
             # Change the player's location to exit
             player["location"] = "exit"
-    
+            return "You have quit the game."
         # If the player's action is blank tell the player
         elif action[0] == "":
-            print("Please enter a valid action.")
-    
+            return "Please enter a valid action."
         # If the player's action is invalid, tell the player
         else:
-            print("Invalid action.")
-
+            return "Invalid action."
     # If the action list is empty, tell the player
     else:
-        print("Please enter a valid action.")
-        print("----------------------")
-
-    # Return the new state of the player only if the player's location is not exit
-    session["player"] = player
-    return player
+        return "Please enter a valid action."
 
 # Define a function for moving the player
 def move(direction, pllocation, rooms, player):
@@ -130,54 +86,41 @@ def move(direction, pllocation, rooms, player):
         if new_location == "Hall of Illusions":
             # Check if the player has all the items
             if len(player["inventory"]) == 6:
-                print("You have found and defeated Divisio. You have saved the kingdom of Kalambia.")
-                player["location"] = "exit"
-                session["player"] = player
-                return 'exit'
+                return "You have found and defeated Divisio. You have saved the kingdom of Kalambia."
             # If the player does not have all the items, tell the player they need to find all the items
             else:
-                print("You have been defeated by Divisio. You must find all the items to defeat him.")
-                player["location"] = "exit"
-                session["player"] = player
-                return 'exit'
+                return "You have been defeated by Divisio. You must find all the items to defeat him."
         
         # Update the player's location and show the player's status
-        show_status(player, rooms)
-
+        return f"Moved to {new_location}"
     # If the direction is not valid, tell the player
     else:
-        print("You can't go that way.")
-    
-    # Return the new location of the player
-    session["player"] = player
-    return player["location"]
+        return "You can't go that way."
 
 # Define a function for checking the player's stats
-# Tell the player where they are and what items are in the room if any
-# Tell the player what items are in their inventory, change formatting based on the number of items
 def show_status(player, rooms):
     # Tell the player where they are
-    print("You are in the " + player["location"])
+    status = f"You are in the {player['location']}<br>"
 
     # Tell the player what items are in their inventory, change formatting based on the number of items
     if len(player["inventory"]) == 0:
-        print("Inventory: []")
+        status += "Inventory: []<br>"
     elif len(player["inventory"]) == 1:
-        print("Inventory: [" + player["inventory"][0].capitalize() + "]")
+        status += f"Inventory: [{player['inventory'][0].capitalize()}]<br>"
     elif len(player["inventory"]) > 1:
-        print("Inventory: [", end="")
+        status += "Inventory: ["
         for item in player["inventory"]:
             if item == player["inventory"][-1]:
-                print(item.capitalize(), end="")
+                status += item.capitalize()
             else:
-                print(item.capitalize() + ", ", end="")
-        print("]")
+                status += f"{item.capitalize()}, "
+        status += "]<br>"
 
     # Tell the player what items are in the room if any
     if "item" in rooms[player["location"]]:
-        print("Items in this room: " + rooms[player["location"]]["item"][0])
-        
-    print("----------------------")
+        status += f"Items in this room: {rooms[player['location']]['item'][0]}<br>"
+
+    return status
     
 # Define a function for getting an item
 def get_item(item, player, rooms):
@@ -189,15 +132,11 @@ def get_item(item, player, rooms):
 
         # Remove the item from the rooms dictionary and tell the player they have added the item to their inventory, 
         # capitalizing the first letter of the item
-        print("You have added a " + item.capitalize() + " to your inventory.")
         current_room_items.remove(item.capitalize())
-        session["player"] = player
-
+        return f"You have added a {item.capitalize()} to your inventory."
     # If the item is not in the room, tell the player the item is not there
     else:
-        print("That item is not in this room.")
-    
-    print("----------------------")
+        return "That item is not in this room."
 
 def game_intro():
     return (
@@ -217,29 +156,6 @@ def process_input(input_data):
     player = session["player"]
     rooms = session["rooms"]
 
-    action = input_data.lower().split()
-    response = []
-
-    if action:
-        if action[0] == "go":
-            response.append(player["location"])
-            player["location"] = move(action[1], player["location"], rooms, player)
-            response.append(player["location"])
-        elif action[0] == "get":
-            if len(action) > 1:
-                get_item(action[1], player, rooms)
-            else:
-                response.append("Please specify an item to get.")
-        elif action[0] == "check" and action[1] == "stats":
-            response.append(show_status(player, rooms))
-        elif action[0] == "quit":
-            player["location"] = "exit"
-        elif action[0] == "":
-            response.append("Please enter a valid action.")
-        else:
-            response.append("Invalid action.")
-    else:
-        response.append("Please enter a valid action.")
-    
+    response = get_new_state(input_data, player["location"], rooms, player)
     session["player"] = player
-    return "<br>".join(response)
+    return response
