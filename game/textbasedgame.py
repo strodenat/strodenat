@@ -33,12 +33,13 @@ def reset_game():
         "name": '',
         "inventory": [],
         "location": 'Hall of Acceptance',
+        "game_over": False,
     }
 
 def get_new_state(action, pllocation, rooms, player):
     action = [word.lower() for word in action]
 
-    if player["location"] == "exit":
+    if player.get("game_over", False):
         return "Game has already ended. Please start a new game."
 
     if action:
@@ -53,6 +54,7 @@ def get_new_state(action, pllocation, rooms, player):
             return show_status(player, rooms)
         elif action[0] == "quit":
             player["location"] = "exit"
+            player["game_over"] = True
             return "You have quit the game."
         elif action[0] == "restart":
             reset_game()
@@ -64,17 +66,18 @@ def get_new_state(action, pllocation, rooms, player):
         return "Please enter a valid action."
 
 def move(direction, pllocation, rooms, player):
-    print(f"Attempting to move {direction} from {pllocation}")
     if direction in rooms[pllocation]:
         new_location = rooms[pllocation][direction]
         player["location"] = new_location
-        
+
         if new_location == "Hall of Illusions":
             if len(player["inventory"]) == 6:
+                player["game_over"] = True
                 return "You have found and defeated Divisio. You have saved the kingdom of Kalambia."
             else:
+                player["game_over"] = True
                 return "You have been defeated by Divisio. You must find all the items to defeat him."
-        
+
         return f"Moved to {new_location}"
     else:
         return "You can't go that way."
@@ -101,7 +104,6 @@ def show_status(player, rooms):
     return status
 
 def get_item(item, player, rooms):
-    print(f"Attempting to get item: {item}")
     current_room_items = rooms[player["location"]].get("item", [])
     if item.capitalize() in current_room_items:
         player["inventory"].append(item)
@@ -130,8 +132,6 @@ def process_input(input_data):
     rooms = session["rooms"]
 
     action = input_data.split()
-    print(f"Processing input: {action}")
     response = get_new_state(action, player["location"], rooms, player)
     session["player"] = player
-    print(f"Response: {response}")
     return response
