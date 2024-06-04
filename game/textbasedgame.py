@@ -99,17 +99,21 @@ def get_item(item, player, rooms):
     current_room = rooms[player["location"]]
     print(f"Current room: {current_room}")
     item_lower = item.lower()
+    
+    # Ensure item key exists and room contains an item
     if "item" in current_room:
         room_item = current_room["item"][0]
-        room_item_first_word = room_item.split(" ")[0].lower()
-        print(f"Comparing {item_lower} with {room_item_first_word}")
-        if item_lower == room_item_first_word:
+        room_item_lower = room_item.lower()
+        print(f"Comparing {item_lower} with {room_item_lower}")
+        
+        if item_lower in room_item_lower:
             player["inventory"].append(room_item)
             player["inventory"][0] += 1
             del current_room["item"]
             print(f"Added {room_item} to inventory.")
             print(f"Current inventory: {player['inventory']}")
             return f"You have added a {room_item} to your inventory."
+    
     print(f"Item {item} not found in room.")
     return "That item is not in this room."
 
