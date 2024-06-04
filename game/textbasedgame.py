@@ -10,11 +10,19 @@
 # The game ends when the player's location is set to the room 'exit'.
 
 from flask import session
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 def initialize_game():
-    if "player" not in session or session["player"]["game_over"]:
-        reset_game()
-
+    logging.info("Initializing game...")
+    if "player" not in session:
+        session["player"] = {
+            "name": '',
+            "inventory": [],
+            "location": 'Hall of Acceptance',
+            "game_over": False,
+        }
     if "rooms" not in session:
         session["rooms"] = {
             "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions',
@@ -27,16 +35,20 @@ def initialize_game():
             "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
             "Hall of Illusions": {"west": 'Vault of Visions'}
         }
+    logging.info("Game initialized.")
 
 def reset_game():
+    logging.info("Resetting game...")
     session["player"] = {
         "name": '',
         "inventory": [],
         "location": 'Hall of Acceptance',
         "game_over": False,
     }
+    logging.info("Game reset.")
 
 def get_new_state(action, pllocation, rooms, player):
+    logging.info(f"Action received: {action}")
     action = [word.lower() for word in action]
 
     if player.get("game_over", False) and action[0] != "restart":
@@ -66,6 +78,7 @@ def get_new_state(action, pllocation, rooms, player):
         return "Please enter a valid action."
 
 def move(direction, pllocation, rooms, player):
+    logging.info(f"Attempting to move {direction} from {pllocation}")
     if direction in rooms[pllocation]:
         new_location = rooms[pllocation][direction]
         player["location"] = new_location
@@ -107,6 +120,7 @@ def show_status(player, rooms):
     return status
 
 def get_item(item, player, rooms):
+    logging.info(f"Attempting to get item: {item}")
     current_room_items = rooms[player["location"]].get("item", [])
     if item.capitalize() in current_room_items:
         player["inventory"].append(item)
