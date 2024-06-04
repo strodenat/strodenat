@@ -77,46 +77,29 @@ def process_input(input_data):
         return "Unknown command: " + input_data
 
 def player_move(direction, player, rooms):
-    current_location = player["location"]
-    direction = direction.lower()
-    print(f"Current location: {current_location}, direction: {direction}")
+    current_room = rooms[player["location"]]
+    print(f"Current room: {current_room}")
+    direction_lower = direction.lower()
     
-    if direction in rooms[current_location]:
-        new_location = rooms[current_location][direction]
-        player["location"] = new_location
-        response = "You have moved to the " + new_location
-        print(f"Moved to new location: {new_location}")
-        
-        if "item" in rooms[new_location]:
-            response += "\nYou see a " + rooms[new_location]["item"][0] + " in this room."
-        if new_location == "Hall of Illusions":
-            response += "\n" + encounter_divisio(player)
-        return response
-    else:
-        print(f"Invalid direction: {direction}")
-        return "You cannot go that way."
+    # Ensure direction key exists
+    if direction_lower in current_room:
+        new_room = current_room[direction_lower]
+        player["location"] = new_room
+        print(f"Moved to {new_room}")
+        return f"You have moved to the {new_room}."
+    
+    print(f"Direction {direction} not found in room.")
+    return "You cannot go that way."
 
 def get_item(item, player, rooms):
     current_room = rooms[player["location"]]
-    print(f"Current room: {current_room}")
-    item_lower = item.lower()
-    
-    # Ensure item key exists and room contains an item
-    if "item" in current_room:
-        room_item = current_room["item"][0]
-        room_item_lower = room_item.lower()
-        print(f"Comparing {item_lower} with {room_item_lower}")
-        
-        if item_lower in room_item_lower:
-            player["inventory"].append(room_item)
-            player["inventory"][0] += 1
-            del current_room["item"]
-            print(f"Added {room_item} to inventory.")
-            print(f"Current inventory: {player['inventory']}")
-            return f"You have added a {room_item} to your inventory."
-    
-    print(f"Item {item} not found in room.")
-    return "That item is not in this room."
+    if "item" in current_room and item in current_room["item"]:
+        player["inventory"].append(item)
+        player["inventory"][0] += 1
+        current_room["item"].remove(item)
+        return "You have picked up the " + item + "."
+    else:
+        return "The " + item + " is not in this room."
 
 def encounter_divisio(player):
     global is_alive
