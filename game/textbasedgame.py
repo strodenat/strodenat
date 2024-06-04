@@ -1,4 +1,4 @@
-# Description: This is a text-based game that will be played in the terminal.
+# Description: This is a text based game that will be played in the terminal.
 # Author: Nathaniel Strode
 
 # The Pale Palace is a game where the player must navigate through the palace,
@@ -12,7 +12,7 @@
 from flask import session
 
 def initialize_game():
-    if "player" not in session:
+    if "player" not in session or session["player"]["game_over"]:
         reset_game()
 
     if "rooms" not in session:
@@ -39,7 +39,7 @@ def reset_game():
 def get_new_state(action, pllocation, rooms, player):
     action = [word.lower() for word in action]
 
-    if player.get("game_over", False):
+    if player.get("game_over", False) and action[0] != "restart":
         return "Game has already ended. Please start a new game."
 
     if action:
