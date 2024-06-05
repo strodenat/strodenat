@@ -53,7 +53,7 @@
                 body: `input=${encodeURIComponent(input)}`
             });
             const output = await response.json();
-            document.getElementById("gameOutput").innerText = output.output;
+            document.getElementById("gameOutput").innerText = output.output.replace(/\\n/g, "\n");
             document.getElementById("gameInput").value = ''; // Clear the input box after submitting
         }
 
