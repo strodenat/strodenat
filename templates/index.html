@@ -56,7 +56,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('game-output').innerHTML += '<br>' + data.response.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                document.getElementById('game-output').innerHTML += '<br>' + data.output.replace(/(?:\r\n|\r|\n)/g, '<br>');
                 document.getElementById('user-input').value = '';
             });
         });
