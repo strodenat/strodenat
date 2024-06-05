@@ -16,25 +16,8 @@ logging.basicConfig(level=logging.INFO)
 
 def initialize_game():
     logging.info("Initializing game...")
-    if "player" not in session:
-        session["player"] = {
-            "name": '',
-            "inventory": [],
-            "location": 'Hall of Acceptance',
-            "game_over": False,
-        }
-    if "rooms" not in session:
-        session["rooms"] = {
-            "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions',
-                                   "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
-            "Diplomatic Den": {"east": 'Hall of Acceptance', "item": ["Necklace"]},
-            "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
-            "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
-            "Gallery of Shadows": {"north": 'Archives of Unity', "west": 'Hall of Acceptance', "item": ["Ring"]},
-            "Archives of Unity": {"south": 'Gallery of Shadows', "item": ["Orb"]},
-            "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
-            "Hall of Illusions": {"west": 'Vault of Visions'}
-        }
+    if "player" not in session or "game_over" not in session["player"]:
+        reset_game()
     logging.info("Game initialized.")
 
 def reset_game():
@@ -44,6 +27,17 @@ def reset_game():
         "inventory": [],
         "location": 'Hall of Acceptance',
         "game_over": False,
+    }
+    session["rooms"] = {
+        "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions',
+                               "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
+        "Diplomatic Den": {"east": 'Hall of Acceptance', "item": ["Necklace"]},
+        "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
+        "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
+        "Gallery of Shadows": {"north": 'Archives of Unity', "west": 'Hall of Acceptance', "item": ["Ring"]},
+        "Archives of Unity": {"south": 'Gallery of Shadows', "item": ["Orb"]},
+        "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
+        "Hall of Illusions": {"west": 'Vault of Visions'}
     }
     logging.info("Game reset.")
 
@@ -70,7 +64,6 @@ def get_new_state(action, pllocation, rooms, player):
             return "You have quit the game."
         elif action[0] == "restart":
             reset_game()
-            initialize_game()
             return "Game has been restarted."
         else:
             return "Invalid action."
