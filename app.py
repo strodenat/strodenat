@@ -1,5 +1,5 @@
 from flask import Flask, request, session, jsonify, render_template
-from textbasedgame import initialize_game, process_input
+from game.textbasedgame import initialize_game, process_input, game_intro
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
