@@ -6,13 +6,14 @@ logging.basicConfig(level=logging.INFO)
 def initialize_game():
     if "player" not in session:
         reset_game()
+        logging.info("Game initialized with player: %s", session["player"])
 
 def reset_game():
-    session.clear()
+    session.clear()  # Clear the session to avoid residual data
     session["player"] = {
         "name": '',
         "inventory": [],
-        "location": 'Hall of Acceptance',
+        "location": 'Hall of Acceptance',  # Initial location
         "game_over": False,
     }
     session["rooms"] = {
@@ -25,8 +26,10 @@ def reset_game():
         "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
         "Hall of Illusions": {"west": 'Vault of Visions'}
     }
+    logging.info("Game reset with player: %s", session["player"])
 
 def get_new_state(action, pllocation, rooms, player):
+    logging.info("Processing action: %s", action)
     action = [word.lower() for word in action]
 
     if player.get("game_over", False) and action[0] != "restart":
@@ -34,12 +37,14 @@ def get_new_state(action, pllocation, rooms, player):
 
     if action:
         if action[0] == "go":
-            return move(action[1], pllocation, rooms, player)
+            move_result = move(action[1], pllocation, rooms, player)
+            return f"{move_result}\n{show_status(player, rooms)}"
         elif action[0] == "get":
             if len(action) > 1:
-                return get_item(action[1], player, rooms)
+                get_result = get_item(action[1], player, rooms)
+                return f"{get_result}\n{show_status(player, rooms)}"
             else:
-                return "Please specify an item to get."
+                return "Please specify an item to get.\n" + show_status(player, rooms)
         elif action[0] == "check" and action[1] == "stats":
             return show_status(player, rooms)
         elif action[0] == "quit":
@@ -47,16 +52,18 @@ def get_new_state(action, pllocation, rooms, player):
             return "You have quit the game."
         elif action[0] == "restart":
             reset_game()
-            return "Game has been restarted."
+            return "Game has been restarted.\n" + show_status(player, rooms)
         else:
-            return "Invalid action."
+            return "Invalid action.\n" + show_status(player, rooms)
     else:
-        return "Please enter a valid action."
+        return "Please enter a valid action.\n" + show_status(player, rooms)
 
 def move(direction, pllocation, rooms, player):
+    logging.info("Attempting to move %s from %s", direction, pllocation)
     if direction in rooms[pllocation]:
         new_location = rooms[pllocation][direction]
         player["location"] = new_location
+        logging.info("Moved to %s", new_location)
 
         if new_location == "Hall of Illusions":
             if len(player["inventory"]) == 6:
@@ -102,6 +109,7 @@ def game_intro():
     return (
         "Welcome to The Pale Palace.\n"
         "You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio.\n"
+        "You start your journey in the Hall of Acceptance.\n"
         "You must navigate through the palace, find all 6 items, and defeat Divisio to save the kingdom.\n"
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
         "Move commands: 'go North', 'go South', 'go East', 'go West'\n"
@@ -119,4 +127,6 @@ def process_input(input_data):
     action = input_data.split()
     response = get_new_state(action, player["location"], rooms, player)
     session["player"] = player
+    logging.info("Processed input: %s", response)
+    logging.info("Player location after input: %s", player["location"])
     return response
