@@ -97,10 +97,14 @@ def show_status(player, rooms):
     return status
 
 def get_item(item, player, rooms):
+    logging.info("Attempting to get item: %s in room: %s", item, player["location"])
     current_room_items = rooms[player["location"]].get("item", [])
+    logging.info("Current room items: %s", current_room_items)
     if item.capitalize() in current_room_items:
         player["inventory"].append(item)
         current_room_items.remove(item.capitalize())
+        logging.info("Item %s added to inventory. New inventory: %s", item, player["inventory"])
+        logging.info("New room items: %s", current_room_items)
         return f"You have added a {item.capitalize()} to your inventory."
     else:
         return "That item is not in this room."
