@@ -1,19 +1,23 @@
-from flask import Flask, request, session, render_template
-from game.textbasedgame import initialize_game, process_input
+from flask import Flask, request, jsonify, render_template
+from game.textbasedgame import process_input, initialize_game
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+
+# Initialize game state
+initialize_game()
 
 @app.route('/')
 def index():
-    initialize_game()
-    return render_template('index.html')
+    return render_template('index.html', intro="Welcome to the game! Enter your commands below.")
 
 @app.route('/game', methods=['POST'])
 def game():
-    user_input = request.form.get('user_input')
+    user_input = request.get_json().get('input', '')
+    if not user_input:
+        return jsonify({"response": "Please enter a valid command."})
+
     response = process_input(user_input)
-    return response
+    return jsonify({"response": response})
 
 if __name__ == '__main__':
     app.run(debug=True)

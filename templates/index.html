@@ -33,7 +33,7 @@
         </section>
         <section id="game">
             <h2>Play My Python Game</h2>
-            <div id="game-output"></div>
+            <div id="game-output">{{ intro | safe }}</div>
             <form id="game-form">
                 <input type="text" id="user-input" autofocus autocomplete="off" placeholder="Enter command">
                 <button type="submit">Submit</button>
@@ -56,9 +56,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('game-output').innerHTML = data.response.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                document.getElementById('game-output').innerHTML += '<br>' + data.response.replace(/(?:\r\n|\r|\n)/g, '<br>');
                 document.getElementById('user-input').value = '';
             });
         });
     </script>
 </body>
+</html>
