@@ -4,26 +4,25 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def initialize_game():
-    session['player'] = {
-        'game_over': False,
-        'inventory': ['ring', 'orb', 'necklace', 'potion', 'key', 'sword'],
-        'location': 'Hall of Illusions',
-        'name': ''
+    if "player" not in session:
+        reset_game()
+
+def reset_game():
+    session["player"] = {
+        "name": '',
+        "inventory": [],
+        "location": 'Hall of Acceptance',
+        "game_over": False,
     }
-    session['rooms'] = {
-        'Hall of Illusions': {
-            'description': 'You are in the Hall of Illusions. There are doors to the north and east.',
-            'north': 'Enchanted Garden',
-            'east': 'Mystic Library'
-        },
-        'Enchanted Garden': {
-            'description': 'You are in the Enchanted Garden. There is a door to the south.',
-            'south': 'Hall of Illusions'
-        },
-        'Mystic Library': {
-            'description': 'You are in the Mystic Library. There is a door to the west.',
-            'west': 'Hall of Illusions'
-        }
+    session["rooms"] = {
+        "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions', "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
+        "Diplomatic Den": {"east": 'Hall of Acceptance', "item": ["Necklace"]},
+        "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
+        "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
+        "Gallery of Shadows": {"north": 'Archives of Unity', "west": 'Hall of Acceptance', "item": ["Ring"]},
+        "Archives of Unity": {"south": 'Gallery of Shadows', "item": ["Orb"]},
+        "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
+        "Hall of Illusions": {"west": 'Vault of Visions'}
     }
 
 def get_new_state(action, pllocation, rooms, player):
@@ -111,65 +110,12 @@ def game_intro():
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     )
 
-def process_input(user_input):
-    if not user_input:
-        return "Please enter a command."
-    
-    action = user_input.split()
-    player = session['player']
-    rooms = session['rooms']
+def process_input(input_data):
+    initialize_game()
+    player = session["player"]
+    rooms = session["rooms"]
 
-    if player['game_over']:
-        if action[0] == 'restart':
-            initialize_game()
-            return "Game restarted. " + rooms[player['location']]['description']
-        else:
-            return "Game has already ended. Please type 'restart' to start a new game."
-
-    command = action[0]
-    if command == 'go':
-        if len(action) < 2:
-            return "Go where?"
-        direction = action[1]
-        current_location = player['location']
-        if direction in rooms[current_location]:
-            player['location'] = rooms[current_location][direction]
-            session['player'] = player
-            return rooms[player['location']]['description']
-        else:
-            return "You can't go that way."
-    elif command == 'look':
-        return rooms[player['location']]['description']
-    elif command == 'inventory':
-        if player['inventory']:
-            return "You have: " + ", ".join(player['inventory'])
-        else:
-            return "You are not carrying anything."
-    elif command == 'take':
-        if len(action) < 2:
-            return "Take what?"
-        item = action[1]
-        # Example logic for taking items
-        if item in ['ring', 'orb', 'necklace', 'potion', 'key', 'sword'] and player['location'] == 'Hall of Illusions':
-            player['inventory'].append(item)
-            session['player'] = player
-            return "You took the " + item + "."
-        else:
-            return "There is no " + item + " here."
-    elif command == 'drop':
-        if len(action) < 2:
-            return "Drop what?"
-        item = action[1]
-        if item in player['inventory']:
-            player['inventory'].remove(item)
-            session['player'] = player
-            return "You dropped the " + item + "."
-        else:
-            return "You don't have " + item + "."
-    elif command == 'restart':
-        initialize_game()
-        return "Game restarted. " + rooms[player['location']]['description']
-    elif command == 'check' and len(action) > 1 and action[1] == 'stats':
-        return "Location: " + player['location'] + ", Inventory: " + ", ".join(player['inventory'])
-    else:
-        return "I don't understand that command."
+    action = input_data.split()
+    response = get_new_state(action, player["location"], rooms, player)
+    session["player"] = player
+    return response
