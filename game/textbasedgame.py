@@ -1,14 +1,3 @@
-# Description: This is a text based game that will be played in the terminal.
-# Author: Nathaniel Strode
-
-# The Pale Palace is a game where the player must navigate through the palace,
-# find all 6 items, and defeat Divisio to save the kingdom.
-# The player can move through the palace by going North, South, East, or West.
-# The player can add items to their inventory by getting the item in the room.
-# The player can check their status.
-# The player can quit the game at any time.
-# The game ends when the player's location is set to the room 'exit'.
-
 from flask import session
 import logging
 
@@ -16,9 +5,9 @@ logging.basicConfig(level=logging.INFO)
 
 def initialize_game():
     logging.info("Initializing game...")
-    if "player" not in session or "game_over" not in session["player"]:
+    if "player" not in session or session["player"].get("game_over") is None:
         reset_game()
-    logging.info("Game initialized.")
+    logging.info(f"Game initialized. Player state: {session['player']}")
 
 def reset_game():
     logging.info("Resetting game...")
@@ -39,7 +28,7 @@ def reset_game():
         "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
         "Hall of Illusions": {"west": 'Vault of Visions'}
     }
-    logging.info("Game reset.")
+    logging.info("Game reset. New player state and rooms initialized.")
 
 def get_new_state(action, pllocation, rooms, player):
     logging.info(f"Action received: {action}")
@@ -56,10 +45,9 @@ def get_new_state(action, pllocation, rooms, player):
                 return get_item(action[1], player, rooms)
             else:
                 return "Please specify an item to get."
-        elif action[0] == "check" and len(action) > 1 and action[1] == "stats":
+        elif action[0] == "check" and action[1] == "stats":
             return show_status(player, rooms)
         elif action[0] == "quit":
-            player["location"] = "exit"
             player["game_over"] = True
             return "You have quit the game."
         elif action[0] == "restart":
@@ -83,21 +71,17 @@ def move(direction, pllocation, rooms, player):
             else:
                 player["game_over"] = True
                 return "You have been defeated by Divisio. You must find all the items to defeat him."
-
+        
         return f"Moved to {new_location}"
     else:
         return "You can't go that way."
 
 def show_status(player, rooms):
-    if player["location"] == "exit":
-        return "Game has already ended. Please start a new game."
-
-    status = f"You are in the {player['location']}<br>"
+    logging.info("Showing status...")
+    status = f"You are in the {player['location']}\n"
 
     if len(player["inventory"]) == 0:
-        status += "Inventory: []<br>"
-    elif len(player["inventory"]) == 1:
-        status += f"Inventory: [{player['inventory'][0].capitalize()}]<br>"
+        status += "Inventory: []\n"
     else:
         status += "Inventory: ["
         for item in player["inventory"]:
@@ -105,16 +89,16 @@ def show_status(player, rooms):
                 status += item.capitalize()
             else:
                 status += f"{item.capitalize()}, "
-        status += "]<br>"
+        status += "]\n"
 
-    if "item" in rooms.get(player["location"], {}):
-        status += f"Items in this room: {rooms[player['location']]['item'][0]}<br>"
+    if "item" in rooms[player["location"]]:
+        status += f"Items in this room: {rooms[player['location']]['item'][0]}\n"
 
     return status
 
 def get_item(item, player, rooms):
-    logging.info(f"Attempting to get item: {item}")
     current_room_items = rooms[player["location"]].get("item", [])
+    logging.info(f"Attempting to get item: {item} in room: {player['location']}")
     if item.capitalize() in current_room_items:
         player["inventory"].append(item)
         current_room_items.remove(item.capitalize())
@@ -124,24 +108,25 @@ def get_item(item, player, rooms):
 
 def game_intro():
     return (
-        "Welcome to The Pale Palace.<br>"
-        "You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio.<br>"
-        "You must navigate through the palace, find all 6 items, and defeat Divisio to save the kingdom.<br>"
-        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>"
-        "Move commands: 'go North', 'go South', 'go East', 'go West'<br>"
-        "Add an item to inventory: get 'item name'<br>"
-        "Check stats: 'check stats'<br>"
-        "Exit game: 'quit'<br>"
-        "Restart game: 'restart'<br>"
+        "Welcome to The Pale Palace.\n"
+        "You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio.\n"
+        "You must navigate through the palace, find all 6 items, and defeat Divisio to save the kingdom.\n"
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+        "Move commands: 'go North', 'go South', 'go East', 'go West'\n"
+        "Add an item to inventory: get 'item name'\n"
+        "Check stats: 'check stats'\n"
+        "Exit game: 'quit'\n"
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     )
 
 def process_input(input_data):
+    logging.info(f"User input: {input_data}")
     initialize_game()
     player = session["player"]
     rooms = session["rooms"]
 
     action = input_data.split()
+    logging.info(f"Processing input: {action}")
     response = get_new_state(action, player["location"], rooms, player)
     session["player"] = player
     return response
