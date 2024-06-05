@@ -4,13 +4,10 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def initialize_game():
-    logging.info("Initializing game...")
-    if "player" not in session or session["player"].get("game_over") is None:
+    if "player" not in session:
         reset_game()
-    logging.info(f"Game initialized. Player state: {session['player']}")
 
 def reset_game():
-    logging.info("Resetting game...")
     session["player"] = {
         "name": '',
         "inventory": [],
@@ -18,8 +15,7 @@ def reset_game():
         "game_over": False,
     }
     session["rooms"] = {
-        "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions',
-                               "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
+        "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions', "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
         "Diplomatic Den": {"east": 'Hall of Acceptance', "item": ["Necklace"]},
         "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
         "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
@@ -28,10 +24,8 @@ def reset_game():
         "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
         "Hall of Illusions": {"west": 'Vault of Visions'}
     }
-    logging.info("Game reset. New player state and rooms initialized.")
 
 def get_new_state(action, pllocation, rooms, player):
-    logging.info(f"Action received: {action}")
     action = [word.lower() for word in action]
 
     if player.get("game_over", False) and action[0] != "restart":
@@ -59,7 +53,6 @@ def get_new_state(action, pllocation, rooms, player):
         return "Please enter a valid action."
 
 def move(direction, pllocation, rooms, player):
-    logging.info(f"Attempting to move {direction} from {pllocation}")
     if direction in rooms[pllocation]:
         new_location = rooms[pllocation][direction]
         player["location"] = new_location
@@ -77,7 +70,6 @@ def move(direction, pllocation, rooms, player):
         return "You can't go that way."
 
 def show_status(player, rooms):
-    logging.info("Showing status...")
     status = f"You are in the {player['location']}\n"
 
     if len(player["inventory"]) == 0:
@@ -98,7 +90,6 @@ def show_status(player, rooms):
 
 def get_item(item, player, rooms):
     current_room_items = rooms[player["location"]].get("item", [])
-    logging.info(f"Attempting to get item: {item} in room: {player['location']}")
     if item.capitalize() in current_room_items:
         player["inventory"].append(item)
         current_room_items.remove(item.capitalize())
@@ -120,13 +111,11 @@ def game_intro():
     )
 
 def process_input(input_data):
-    logging.info(f"User input: {input_data}")
     initialize_game()
     player = session["player"]
     rooms = session["rooms"]
 
     action = input_data.split()
-    logging.info(f"Processing input: {action}")
     response = get_new_state(action, player["location"], rooms, player)
     session["player"] = player
     return response
