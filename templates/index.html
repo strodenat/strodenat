@@ -33,37 +33,32 @@
         </section>
         <section id="game">
             <h2>Play My Python Game</h2>
-            <div id="intro">{{ intro | safe }}</div>
-            <input type="text" id="gameInput" placeholder="Enter your command">
-            <button type="button" onclick="sendGameInput()">Submit</button>
-            <div id="gameOutput"></div>
+            <div id="game-output"></div>
+            <form id="game-form">
+                <input type="text" id="user-input" autofocus autocomplete="off" placeholder="Enter command">
+                <button type="submit">Submit</button>
+            </form>
         </section>
     </main>
     <footer>
         &copy; 2024 Nat Strode. All rights reserved.
     </footer>
     <script>
-        async function sendGameInput() {
-            const input = document.getElementById("gameInput").value;
-            const response = await fetch('/game', {
+        document.getElementById('game-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('user-input').value;
+            fetch('/game', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json'
                 },
-                body: `input=${encodeURIComponent(input)}`
-            });
-            const output = await response.json();
-            document.getElementById("gameOutput").innerText = output.output.replace(/\\n/g, "\n");
-            document.getElementById("gameInput").value = ''; // Clear the input box after submitting
-        }
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.getElementById('gameInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendGameInput();
-                }
+                body: JSON.stringify({ input: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('game-output').innerHTML = data.response.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                document.getElementById('user-input').value = '';
             });
         });
     </script>
 </body>
-</html>
