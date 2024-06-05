@@ -8,6 +8,7 @@ def initialize_game():
         reset_game()
 
 def reset_game():
+    session.clear()
     session["player"] = {
         "name": '',
         "inventory": [],
