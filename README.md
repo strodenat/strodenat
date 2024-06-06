@@ -24,42 +24,51 @@ Flask for the back-end.
 Python for the game logic.
 Deployed using a suitable web server.
 Installation
+<br>
 Clone the repository:
-
-bash
-Copy code
+<br>
+In bash:
+<br>
 git clone https://github.com/yourusername/portfolio-website.git
+<br>
 cd portfolio-website
+<br>
 Create a virtual environment and activate it:
-
-bash
-Copy code
+<br>
 python3 -m venv venv
+<br>
 source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+<br>
 Install the required dependencies:
-
-bash
-Copy code
+<br>
 pip install -r requirements.txt
+<br>
 Set the Flask app environment variable:
-
-bash
-Copy code
+<br>
+<br>
 export FLASK_APP=app.py  # On Windows, use `set FLASK_APP=app.py`
+<br>
 Run the Flask application:
-
-bash
-Copy code
+<br>
+<br>
 flask run
+<br>
 Open your browser and go to http://127.0.0.1:5000 to view the website.
-
+<br>
 Usage
+<br>
 Navigate through the various sections to learn more about my skills and projects.
+<br>
 Play the Python game hosted on the site by visiting the game section.
+<br>
 Use the contact form to get in touch with me.
+<br>
 Folder Structure
+<br>
 csharp
+<br>
 Copy code
+<br>
 portfolio-website/
 │
 ├── __pycache__/         # Cache files
