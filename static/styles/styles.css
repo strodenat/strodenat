@@ -83,7 +83,7 @@ section p {
 
 #game {
     margin-top: 20px;
-    color: #ffffff;
+    color: #000000;
 }
 
 #game input[type="text"] {
@@ -98,13 +98,14 @@ section p {
 #game button {
     padding: 10px;
     font-size: 1em;
-    border: 1px solid #000;
+    border: 1px solid #000000;
     background-color: #f0f0f0;
     cursor: pointer;
 }
 
 #game button:hover {
     background-color: #3b3b3b;
+    color: #ffffff;
 }
 
 #gameOutput {
