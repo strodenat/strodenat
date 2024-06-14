@@ -44,9 +44,9 @@ def initialize_game():
 
 # Define a function for getting the new state of the player
 def get_new_state(action, pllocation, rooms, player):
-    show_status(player, rooms)
     status_output = []
-    status_output = [session.get("status_output", [])]
+    session["status_output"] = status_output
+    show_status(player, rooms)
 
     # Convert the player's action to lowercase
     action = [word.lower() for word in action]
@@ -163,7 +163,7 @@ def show_status(player, rooms):
         
     status_output.append("----------------------")
 
-    session["status_output"] = status_output
+    return status_output
     
 # Define a function for getting an item
 def get_item(item, player, rooms):
