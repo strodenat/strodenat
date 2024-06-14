@@ -37,12 +37,14 @@ status_output = []
 # Function definitions
 
 # Define a function for initializing the game
-def intialize_game():
+def initialize_game():
     session["player"] = player_template.copy()
     session["rooms"] = rooms_template.copy()
 
 # Define a function for getting the new state of the player
 def get_new_state(action, pllocation, rooms, player):
+    global status_output
+
     # Convert the player's action to lowercase
     action = [word.lower() for word in action]
 
@@ -93,6 +95,8 @@ def get_new_state(action, pllocation, rooms, player):
 
 # Define a function for moving the player
 def move(direction, pllocation, rooms, player):
+    global status_output
+
     # Check if the direction is valid
     if direction in rooms[pllocation]:
         # Get the new location of the player
@@ -128,6 +132,8 @@ def move(direction, pllocation, rooms, player):
 # Tell the player where they are and what items are in the room if any
 # Tell the player what items are in their inventory, change formatting based on the number of items
 def show_status(player, rooms):
+    global status_output
+
     # Initialize the status output
     status_output = []
 
@@ -158,7 +164,7 @@ def show_status(player, rooms):
     
 # Define a function for getting an item
 def get_item(item, player, rooms):
-
+    global status_output
     # Check if the item is in the room ignoring case
     if item.capitalize() in rooms[player["location"]]["item"]:
         # Add the item to the player's inventory
