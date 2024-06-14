@@ -44,7 +44,9 @@ def initialize_game():
 
 # Define a function for getting the new state of the player
 def get_new_state(action, pllocation, rooms, player):
+    show_status(player, rooms)
     status_output = []
+    status_output = [session.get("status_output", [])]
 
     # Convert the player's action to lowercase
     action = [word.lower() for word in action]
