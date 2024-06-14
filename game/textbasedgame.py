@@ -149,20 +149,15 @@ def show_status(player, rooms):
     elif len(player["inventory"]) == 1:
         status_output.append("Inventory: " + player["inventory"][0].capitalize() + ".")
     elif len(player["inventory"]) > 1:
-        status_output.append("Inventory: [", end="")
-        for item in player["inventory"]:
-            if item == player["inventory"][-1]:
-                status_output.append(item.capitalize() + "].")
-            else:
-                status_output.append(item.capitalize() + ", ", end="")
-        status_output.append("]")
+        status_output.append("Inventory: " + ", ".join([item.capitalize() for item in player["inventory"]]) + ".")
 
     # Tell the player what items are in the room if any
     if "item" in rooms[player["location"]]:
-        status_output.append("Items in the room: " + rooms[player["location"]]["item"])
+        status_output.append("Items in the room: " + ", ".join(rooms[player["location"]]["item"]))
         
     status_output.append("----------------------")
 
+    session["status_output"] = status_output
     return status_output
     
 # Define a function for getting an item
