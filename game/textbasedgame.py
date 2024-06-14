@@ -91,7 +91,7 @@ def get_new_state(action, pllocation, rooms, player):
         status_output.append("----------------------")
 
     # Return the new state of the player only if the player's location is not exit
-    return player
+    return player, status_output
 
 # Define a function for moving the player
 def move(direction, pllocation, rooms, player):
