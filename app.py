@@ -2,7 +2,7 @@
 
 # Import the necessary modules
 from flask import Flask, request, session, jsonify, render_template
-from game.textbasedgame import initialize_game, get_new_state, show_status
+from game.textbasedgame import initialize_game, get_new_state
 
 # Create the Flask application
 app = Flask(__name__)
