@@ -16,7 +16,7 @@ app.secret_key = 'e1b7db05f3024b1ba762a13fb7bc9d6e2f91d2d4e4c8476fb2d24c15b276fb
 def index():
     if 'player' not in session:
         initialize_game()
-    return render_template('index.html')
+    return render_template('index.html', intro = "Welcome to the game!")
 
 # Define the game route
 # This route processes the player's input and returns the response
@@ -29,13 +29,13 @@ def game():
     rooms = session['rooms']
 
     # Process the input and update the player's state
-    new_player_state, status_output = get_new_state(action, player["location"], rooms, player)
-    session['player'] = new_player_state
+    new_state = get_new_state(action, player["location"], rooms, player)
+    session['player'] = new_state["player"]
 
     response = {
-        'location': new_player_state['location'],
-        'inventory': new_player_state['inventory'],
-        'status': status_output
+        'location': new_state['player']['location'],
+        'inventory': new_state['player']['inventory'],
+        'status': new_state['status_output']
     }
 
     return jsonify(response) # Return the response as JSON
