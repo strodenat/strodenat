@@ -1,136 +1,176 @@
+# Description: This is a text based game that will be played in the terminal.
+# Author: Nathaniel Strode
+
+# The Pale Palace is a game where the player must navigate through the palace,
+# Find all 6 items, and defeat Divisio to save the kingdom.
+# The player can move through the palace by going North, South, East, or West.
+# The player can add items to their inventory by getting the item in the room.
+# The player can check their status
+# The player can quit the game at any time. 
+# The game ends when the player's locaton is set to the room 'exit'.
+
+# Import flask
 from flask import session
-import logging
 
-logging.basicConfig(level=logging.INFO)
+# Define a dictonary for the player's stats and inventory
+player_template = {
+    "name":'',
+    "inventory": [],
+    "location": 'Hall of Acceptance', 
+}
 
-def initialize_game():
-    if "player" not in session:
-        reset_game()
-        logging.info("Game initialized with player: %s", session["player"])
+# Define a dictionary for the rooms in the palace conataining the valid directions and items
+rooms_template = {   "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions',
+                                    "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
+            "Diplomatic Den": {"east": 'Hall of Acceptance',"item": ["Necklace"]},
+            "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
+            "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
+            "Gallery of Shadows": {"north": 'Archives of Unity', "west": 'Hall of Acceptance', "item": ["Ring"]},
+            "Archives of Unity": {"south": 'Gallery of Shadows', "item": ["Orb"]},
+            "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
+            "Hall of Illusions": {"west": 'Vault of Visions',}
+}
 
-def reset_game():
-    session.clear()  # Clear the session to avoid residual data
-    session["player"] = {
-        "name": '',
-        "inventory": [],
-        "location": 'Hall of Acceptance',  # Initial location
-        "game_over": False,
-    }
-    session["rooms"] = {
-        "Hall of Acceptance": {"north": 'Garden of Whispers', "south": 'Vault of Visions', "east": 'Gallery of Shadows', "west": 'Diplomatic Den'},
-        "Diplomatic Den": {"east": 'Hall of Acceptance', "item": ["Necklace"]},
-        "Garden of Whispers": {"south": 'Hall of Acceptance', "east": 'Beacon Tower', "item": ["Potion"]},
-        "Beacon Tower": {"west": 'Garden of Whispers', "item": ["Key"]},
-        "Gallery of Shadows": {"north": 'Archives of Unity', "west": 'Hall of Acceptance', "item": ["Ring"]},
-        "Archives of Unity": {"south": 'Gallery of Shadows', "item": ["Orb"]},
-        "Vault of Visions": {"north": 'Hall of Acceptance', "east": 'Hall of Illusions', "item": ["Sword"]},
-        "Hall of Illusions": {"west": 'Vault of Visions'}
-    }
-    logging.info("Game reset with player: %s", session["player"])
+# Define a variable for the status output
+status_output = []
 
+# Function definitions
+
+# Define a function for initializing the game
+def intialize_game():
+    session["player"] = player_template.copy()
+    session["rooms"] = rooms_template.copy()
+
+# Define a function for getting the new state of the player
 def get_new_state(action, pllocation, rooms, player):
-    logging.info("Processing action: %s", action)
+    # Convert the player's action to lowercase
     action = [word.lower() for word in action]
 
-    if player.get("game_over", False) and action[0] != "restart":
-        return "Game has already ended. Please start a new game."
-
+    # Check if the action list is empty
     if action:
+    
+        # Check if the player wants to move
         if action[0] == "go":
-            move_result = move(action[1], pllocation, rooms, player)
-            return f"{move_result}\n{show_status(player, rooms)}"
+            # Call the move function to move the player
+            player["location"] = move(action[1], pllocation, rooms, player)
+
+            # Check if the player wants to get an item
         elif action[0] == "get":
+            # Check if the player is trying to get an item
             if len(action) > 1:
-                get_result = get_item(action[1], player, rooms)
-                return f"{get_result}\n{show_status(player, rooms)}"
+                # Call the get_item function to get the item
+                get_item(action[1], player, rooms)
+
+            # If the player is not trying to get an item, tell the player
             else:
-                return "Please specify an item to get.\n" + show_status(player, rooms)
+                status_output.append("Please specify an item to get.")
+    
+        # Check if the player wants to check their stats
         elif action[0] == "check" and action[1] == "stats":
-            return show_status(player, rooms)
+            # Call the show_status function to show the player's stats
+            show_status(player, rooms)
+    
+        # Check if the player wants to exit the game
         elif action[0] == "quit":
-            player["game_over"] = True
-            return "You have quit the game."
-        elif action[0] == "restart":
-            reset_game()
-            return "Game has been restarted.\n" + show_status(player, rooms)
+            # Change the player's location to exit
+            player["location"] = "exit"
+    
+        # If the player's action is blank tell the player
+        elif action[0] == "":
+            status_output.append("Please enter a valid action.")
+    
+        # If the player's action is invalid, tell the player
         else:
-            return "Invalid action.\n" + show_status(player, rooms)
-    else:
-        return "Please enter a valid action.\n" + show_status(player, rooms)
+            status_output.append("Invalid action.")
 
+    # If the action list is empty, tell the player
+    else:
+        status_output.append("Please enter a valid action.")
+        status_output.append("----------------------")
+
+    # Return the new state of the player only if the player's location is not exit
+    return player
+
+# Define a function for moving the player
 def move(direction, pllocation, rooms, player):
-    logging.info("Attempting to move %s from %s", direction, pllocation)
+    # Check if the direction is valid
     if direction in rooms[pllocation]:
+        # Get the new location of the player
         new_location = rooms[pllocation][direction]
+
+        # Move the player to the new location
         player["location"] = new_location
-        logging.info("Moved to %s", new_location)
-
-        if new_location == "Hall of Illusions":
-            if len(player["inventory"]) == 6:
-                player["game_over"] = True
-                return "You have found and defeated Divisio. You have saved the kingdom of Kalambia."
-            else:
-                player["game_over"] = True
-                return "You have been defeated by Divisio. You must find all the items to defeat him."
         
-        return f"Moved to {new_location}"
-    else:
-        return "You can't go that way."
+        # If the player is in the Hall of Illusions check if they have all the items
+        if new_location == "Hall of Illusions":
+            # Check if the player has all the items
+            if len(player["inventory"]) == 6:
+                status_output.append("You have defeated Divisio and saved the kingdom!")
+                player["location"] = "exit"
+                return 'exit'
+            # If the player does not have all the items, tell the player they need to find all the items
+            else:
+                status_output.append("You need to find all the items to defeat Divisio.")
+                player["location"] = "exit"
+                return 'exit'
+        
+        # Update the player's location and show the player's status
+        status_output.extend(show_status(player, rooms))
 
+    # If the direction is not valid, tell the player
+    else:
+        status_output.append("You cannot go that way.")
+    
+    # Return the new location of the player
+    return player["location"]
+
+# Define a function for checking the player's stats
+# Tell the player where they are and what items are in the room if any
+# Tell the player what items are in their inventory, change formatting based on the number of items
 def show_status(player, rooms):
-    status = f"You are in the {player['location']}\n"
+    # Initialize the status output
+    status_output = []
 
+    # Tell the player where they are
+    status_output.append("You are in the " + player["location"] + ".")
+
+    # Tell the player what items are in their inventory, change formatting based on the number of items
     if len(player["inventory"]) == 0:
-        status += "Inventory: []\n"
-    else:
-        status += "Inventory: ["
+        status_output.append("Inventory: None")
+    elif len(player["inventory"]) == 1:
+        status_output.append("Inventory: " + player["inventory"][0].capitalize() + ".")
+    elif len(player["inventory"]) > 1:
+        status_output.append("Inventory: [", end="")
         for item in player["inventory"]:
             if item == player["inventory"][-1]:
-                status += item.capitalize()
+                status_output.append(item.capitalize() + "].")
             else:
-                status += f"{item.capitalize()}, "
-        status += "]\n"
+                status_output.append(item.capitalize() + ", ", end="")
+        status_output.append("]")
 
+    # Tell the player what items are in the room if any
     if "item" in rooms[player["location"]]:
-        status += f"Items in this room: {rooms[player['location']]['item'][0]}\n"
+        status_output.append("Items in the room: " + rooms[player["location"]]["item"])
+        
+    status_output.append("----------------------")
 
-    return status
-
+    return status_output
+    
+# Define a function for getting an item
 def get_item(item, player, rooms):
-    logging.info("Attempting to get item: %s in room: %s", item, player["location"])
-    current_room_items = rooms[player["location"]].get("item", [])
-    logging.info("Current room items: %s", current_room_items)
-    if item.capitalize() in current_room_items:
+
+    # Check if the item is in the room ignoring case
+    if item.capitalize() in rooms[player["location"]]["item"]:
+        # Add the item to the player's inventory
         player["inventory"].append(item)
-        current_room_items.remove(item.capitalize())
-        logging.info("Item %s added to inventory. New inventory: %s", item, player["inventory"])
-        logging.info("New room items: %s", current_room_items)
-        return f"You have added a {item.capitalize()} to your inventory."
+
+        # Remove the item from the rooms dictionary and tell the player they have added the item to their inventory, 
+        # capitalizing the first letter of the item
+        status_output
+        del rooms[player["location"]]["item"]
+
+    # If the item is not in the room, tell the player the item is not there
     else:
-        return "That item is not in this room."
-
-def game_intro():
-    return (
-        "Welcome to The Pale Palace.\n"
-        "You are Kalambia's final hope to save the kingdom from the evil sorcerer, Divisio.\n"
-        "You start your journey in the Hall of Acceptance.\n"
-        "You must navigate through the palace, find all 6 items, and defeat Divisio to save the kingdom.\n"
-        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-        "Move commands: 'go North', 'go South', 'go East', 'go West'\n"
-        "Add an item to inventory: get 'item name'\n"
-        "Check stats: 'check stats'\n"
-        "Exit game: 'quit'\n"
-        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    )
-
-def process_input(input_data):
-    initialize_game()
-    player = session["player"]
-    rooms = session["rooms"]
-
-    action = input_data.split()
-    response = get_new_state(action, player["location"], rooms, player)
-    session["player"] = player
-    logging.info("Processed input: %s", response)
-    logging.info("Player location after input: %s", player["location"])
-    return response
+        status_output.append("That item is not in this room.")
+    
+    status_output.append("----------------------")
